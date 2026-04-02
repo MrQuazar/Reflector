@@ -7,6 +7,8 @@
 
 class USpringArmComponent;
 class UCameraComponent;
+class UParryComponent;
+class UHealthComponent;
 class UInputAction;
 class UInputMappingContext;
 struct FInputActionValue;
@@ -31,6 +33,7 @@ protected:
 
     void StartSprint();
     void StopSprint();
+    void StartParry();
 
     UFUNCTION(Server, Reliable)
     void ServerSetSprint(bool bSprint);
@@ -44,6 +47,18 @@ protected:
 
     UPROPERTY(Replicated, BlueprintReadOnly, Replicated, Category = "Movement")
     bool bIsSprinting = false;
+
+    //COMBAT
+    UPROPERTY(VisibleAnywhere, Category = "Combat")
+    class UParryComponent* ParryComponent;
+    UPROPERTY(VisibleAnywhere, Category = "Combat")
+    class UHealthComponent* HealthComponent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+    UAnimMontage* ParryMontage;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
+    float ParryMontageSpeed = 3.0f;
 
 public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -69,6 +84,9 @@ private:
 
     UPROPERTY(EditAnywhere, Category = "Input")
     UInputAction* SprintAction;
+
+    UPROPERTY(EditAnywhere, Category = "Input")
+    UInputAction* ParryAction;
 
     UPROPERTY(EditAnywhere, Category = "Input")
     UInputMappingContext* DefaultMappingContext;

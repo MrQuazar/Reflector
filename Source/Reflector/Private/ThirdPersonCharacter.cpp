@@ -4,8 +4,9 @@
 #include "EnhancedInputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "ParryComponent.h"
+#include "HealthComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
 #include "Net/UnrealNetwork.h"
@@ -41,6 +42,9 @@ AThirdPersonCharacter::AThirdPersonCharacter()
 
     SetReplicates(true);
     SetReplicateMovement(true);
+
+    ParryComponent = CreateDefaultSubobject<UParryComponent>(TEXT("ParryComponent"));
+    HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
 }
 
 void AThirdPersonCharacter::BeginPlay()
@@ -73,6 +77,19 @@ void AThirdPersonCharacter::Tick(float DeltaTime)
     bIsInAir = GetCharacterMovement()->IsFalling();
 }
 
+void AThirdPersonCharacter::StartParry()
+{
+    if (ParryComponent)
+    {
+        ParryComponent->StartParry();
+
+        if (ParryMontage)
+        {
+            PlayAnimMontage(ParryMontage, ParryMontageSpeed);
+        }
+    }
+}
+
 void AThirdPersonCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
     if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
@@ -84,6 +101,8 @@ void AThirdPersonCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
         EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AThirdPersonCharacter::StartSprint);
         EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AThirdPersonCharacter::StopSprint);
+
+        EnhancedInputComponent->BindAction(ParryAction, ETriggerEvent::Started, this, &AThirdPersonCharacter::StartParry);
     }
 }
 
