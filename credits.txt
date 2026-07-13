@@ -1,0 +1,13 @@
+ghost:
+Zeoworks:Terror Engine.
+CodeThisLab:Model & Textures.
+JC(Me): Model Port.
+
+Hanuman:
+"Mahavira Hanuman" (https://skfb.ly/6Ftrp) by Simpletones is licensed under CC Attribution-NonCommercial-ShareAlike (http://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+
+
+Ideas:
+Replace spotlight by lightning/ make spotlightly heavenly with an om model on top
+Show hanuman model spawned afar, huge and always facing cam

@@ -60,6 +60,15 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
     float ParryMontageSpeed = 3.0f;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Combat")
+    TSubclassOf<class AHanuman> HanumanClass;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Combat")
+    TSubclassOf<class AParrySpotlight> SpotlightClass;
+
+    UFUNCTION()
+    void SpawnHanuman();
+
 public:
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 

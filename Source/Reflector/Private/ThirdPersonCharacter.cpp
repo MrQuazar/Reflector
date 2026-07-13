@@ -7,6 +7,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "ParryComponent.h"
 #include "HealthComponent.h"
+#include "Hanuman.h"
+#include "ParrySpotlight.h"
 #include "GameFramework/PlayerController.h"
 #include "InputActionValue.h"
 #include "Net/UnrealNetwork.h"
@@ -51,6 +53,11 @@ void AThirdPersonCharacter::BeginPlay()
 {
     Super::BeginPlay();
 
+    if (HealthComponent)
+    {
+        HealthComponent->OnParrySuccess.AddDynamic(this, &AThirdPersonCharacter::SpawnHanuman);
+    }
+
     if (APlayerController* PC = Cast<APlayerController>(GetController()))
     {
         if (ULocalPlayer* LocalPlayer = PC->GetLocalPlayer())
@@ -75,19 +82,6 @@ void AThirdPersonCharacter::Tick(float DeltaTime)
 
     // Air state
     bIsInAir = GetCharacterMovement()->IsFalling();
-}
-
-void AThirdPersonCharacter::StartParry()
-{
-    if (ParryComponent)
-    {
-        ParryComponent->StartParry();
-
-        if (ParryMontage)
-        {
-            PlayAnimMontage(ParryMontage, ParryMontageSpeed);
-        }
-    }
 }
 
 void AThirdPersonCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -152,4 +146,70 @@ void AThirdPersonCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(AThirdPersonCharacter, bIsSprinting);
+}
+
+void AThirdPersonCharacter::SpawnHanuman()
+{
+    if (!HanumanClass)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("SpawnHanuman: HanumanClass is not set on %s - assign it in the Character Blueprint's Combat category."), *GetName());
+        return;
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("SpawnHanuman: called, spawning %s"), *HanumanClass->GetName());
+
+    FVector Forward = GetActorForwardVector();
+
+    // Spawn slightly behind + above ground
+    FVector SpawnLocation = GetActorLocation() - (Forward * 100.f) + FVector(0, 0, 20.f);
+
+    FRotator SpawnRotation = GetActorRotation();
+
+    FActorSpawnParameters Params;
+    Params.Owner = this;
+
+    AHanuman* Hanuman = GetWorld()->SpawnActor<AHanuman>(
+        HanumanClass,
+        SpawnLocation,
+        SpawnRotation,
+        Params
+    );
+
+    if (Hanuman)
+    {
+        Hanuman->AttachToComponent(
+            GetMesh(),
+            FAttachmentTransformRules::KeepWorldTransform
+        );
+        UE_LOG(LogTemp, Warning, TEXT("SpawnHanuman: spawned and attached %s"), *Hanuman->GetName());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("SpawnHanuman: SpawnActor failed for class %s"), *HanumanClass->GetName());
+    }
+}
+
+void AThirdPersonCharacter::StartParry()
+{
+    if (ParryComponent)
+    {
+        ParryComponent->StartParry();
+
+        if (ParryMontage)
+        {
+            PlayAnimMontage(ParryMontage, ParryMontageSpeed);
+        }
+
+        // Spawn spotlight
+        if (SpotlightClass)
+        {
+            FVector SpawnLocation = GetActorLocation() + FVector(0, 0, 150.f);
+
+            GetWorld()->SpawnActor<AActor>(
+                SpotlightClass,
+                SpawnLocation,
+                FRotator(-90.f, 0.f, 0.f) // pointing down
+            );
+        }
+    }
 }

@@ -34,6 +34,7 @@ void UHealthComponent::ApplyDamage(float Damage, AActor* DamageCauser)
                 if (UHealthComponent* EnemyHealth = DamageCauser->FindComponentByClass<UHealthComponent>())
                 {
                     EnemyHealth->ApplyDamage(Damage, Owner);
+                    OnParrySuccess.Broadcast();
                 }
             }
 

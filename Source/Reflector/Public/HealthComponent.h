@@ -39,4 +39,10 @@ public:
     float GetHealth() const { return CurrentHealth; }
 
     virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+    DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnParrySuccess);
+
+    UPROPERTY(BlueprintAssignable)
+    FOnParrySuccess OnParrySuccess;
+
 };
